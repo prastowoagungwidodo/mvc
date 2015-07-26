@@ -36,7 +36,7 @@ abstract class Controller
     }
 
     /**
-     * Display view file
+     * Display template file
      *
      * @param string $viewFile
      * @param unknown $data

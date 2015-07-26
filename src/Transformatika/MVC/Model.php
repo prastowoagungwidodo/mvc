@@ -39,6 +39,9 @@ class Model
 
     protected $thisClass;
 
+    /**
+     * Constructor
+     */
     public function __construct($data = array())
     {
         if ($this->limit === null) {

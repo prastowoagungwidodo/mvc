@@ -23,7 +23,7 @@ class View
     }
 
     /**
-     * Render Template
+     * Render Template (php file aja)
      *
      * @param string $templateFile
      * @param unknown $data
@@ -32,7 +32,7 @@ class View
     {
         if (!empty($templateFile)) {
             $cacheDir = realpath($this->appPath . DIRECTORY_SEPARATOR . '..') . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'templates';
-            $cacheFile = $cacheDir . DIRECTORY_SEPARATOR . MD5($this->currentController . str_replace('.html', '', $templateFile)) . '.php';
+            $cacheFile = $cacheDir . DIRECTORY_SEPARATOR . MD5($this->currentController . str_replace('.phtml', '', $templateFile)) . '.php';
 
             if (!file_exists($cacheFile) || $this->config['cache'] === false) {
                 $templateTmp = file_get_contents($this->viewPath . DIRECTORY_SEPARATOR . $templateFile);
@@ -64,7 +64,7 @@ class View
         $blockName = str_replace('/', DIRECTORY_SEPARATOR, $blockName);
         $blockContent = '';
         if (file_exists($this->appPath . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . $blockName . '.html')) {
-            $blockContent = file_get_contents($this->appPath . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . $blockName . '.html');
+            $blockContent = file_get_contents($this->appPath . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . $blockName . '.phtml');
         }
         return $blockContent;
     }
@@ -176,5 +176,4 @@ class View
 
         return $this;
     }
-
 }
