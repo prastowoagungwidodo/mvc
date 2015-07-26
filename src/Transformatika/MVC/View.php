@@ -63,7 +63,7 @@ class View
     {
         $blockName = str_replace('/', DIRECTORY_SEPARATOR, $blockName);
         $blockContent = '';
-        if (file_exists($this->appPath . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . $blockName . '.html')) {
+        if (file_exists($this->appPath . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . $blockName . '.phtml')) {
             $blockContent = file_get_contents($this->appPath . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . $blockName . '.phtml');
         }
         return $blockContent;
