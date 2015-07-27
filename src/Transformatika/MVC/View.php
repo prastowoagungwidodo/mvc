@@ -17,8 +17,7 @@ class View
     public function __construct()
     {
         if ($this->config === null) {
-            $config = new Config();
-            $this->config = $config->getConfig();
+            $this->config = Config::getConfig();
         }
     }
 
