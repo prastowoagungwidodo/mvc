@@ -29,10 +29,10 @@ abstract class Controller
         $this->view = new View();
         $className = get_class($this);
         $explodeNamespace = explode('\\', $className);
-        $controllerName = $explodeNamespace[0];
+        $controllerName = $explodeNamespace[1];
         $this->view->setCurrentController($controllerName);
-        $this->view->setAppPath($config->getRootDir() . DIRECTORY_SEPARATOR . 'app');
-        $this->view->setViewPath($config->getRootDir() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'packages' . DIRECTORY_SEPARATOR . $controllerName . DIRECTORY_SEPARATOR . 'View');
+        $this->view->setAppPath($config->getRootDir() . DS . 'src');
+        $this->view->setViewPath($config->getRootDir() . DS . 'src' . DS . $explodeNamespace[0] . DS . $controllerName . DS . 'View');
     }
 
     /**

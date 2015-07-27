@@ -18,7 +18,7 @@ class View
     {
         if ($this->config === null) {
             $config = new Config();
-            $this->config = $config->getConfig('application');
+            $this->config = $config->getConfig();
         }
     }
 
@@ -31,11 +31,11 @@ class View
     public function render($templateFile = '', $data = array())
     {
         if (!empty($templateFile)) {
-            $cacheDir = realpath($this->appPath . DIRECTORY_SEPARATOR . '..') . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'templates';
-            $cacheFile = $cacheDir . DIRECTORY_SEPARATOR . MD5($this->currentController . str_replace('.phtml', '', $templateFile)) . '.php';
+            $cacheDir = realpath($this->appPath . DS . '..') . DS . 'storage' . DS . 'cache' . DS . 'templates';
+            $cacheFile = $cacheDir . DS . MD5($this->currentController . str_replace('.' . $this->config['templateExtension'], '', $templateFile)) . '.php';
 
-            if (!file_exists($cacheFile) || $this->config['cache'] === false) {
-                $templateTmp = file_get_contents($this->viewPath . DIRECTORY_SEPARATOR . $templateFile);
+            if (!file_exists($cacheFile) || $this->config['cache'] == 'false') {
+                $templateTmp = file_get_contents($this->viewPath . DS . $templateFile);
                 preg_match_all("~\{\{\s*(.*?)\s*\}\}~", $templateTmp, $block);
                 foreach ($block[1] as $k => $v) {
                     if ($v === 'php') {
@@ -47,6 +47,7 @@ class View
                         $templateTmp = str_replace('{{' . $v . '}}', $blockTemplate, $templateTmp);
                     }
                 }
+                $templateTmp .= "\n <!-- Generated at: " . date('Y-m-d H:i:s') . " -->";
                 $fp = fopen($cacheFile, 'w');
                 $write = fwrite($fp, $templateTmp);
                 fclose($fp);
@@ -61,10 +62,26 @@ class View
      */
     public function includeBlock($blockName)
     {
-        $blockName = str_replace('/', DIRECTORY_SEPARATOR, $blockName);
+        $blockName = str_replace('/', DS, $blockName);
         $blockContent = '';
-        if (file_exists($this->appPath . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . $blockName . '.phtml')) {
-            $blockContent = file_get_contents($this->appPath . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . $blockName . '.phtml');
+        $blockFile = BASE_PATH . DS . 'storage' . DS . 'share' . DS . 'layout' . DS . $blockName . '.' . $this->config['templateExtension'];
+
+        if (file_exists($blockFile)) {
+            $templateTmp = file_get_contents($blockFile);
+            preg_match_all("~\{\{\s*(.*?)\s*\}\}~", $templateTmp, $block);
+            foreach ($block[1] as $k => $v) {
+                if ($v === 'php') {
+                    $templateTmp = str_replace('{{php}}', '<?php', $templateTmp);
+                } elseif ($v === '/php') {
+                    $templateTmp = str_replace('{{/php}}', '?>', $templateTmp);
+                } else {
+                    $blockTemplate = $this->includeBlock($v);
+                    $templateTmp = str_replace('{{' . $v . '}}', $blockTemplate, $templateTmp);
+                }
+            }
+            $blockContent = $templateTmp;
+        } else {
+            $blockContent = 'FILE NOT FOUND (' . $blockFile . ')';
         }
         return $blockContent;
     }
@@ -88,9 +105,9 @@ class View
     public function includeFile($templateFile = '')
     {
         if (!empty($templateFile)) {
-            str_replace('/', DIRECTORY_SEPARATOR, $templateFile);
-            if (file_exists($this->appPath . DIRECTORY_SEPARATOR . $templateFile)) {
-                require_once $this->appPath . DIRECTORY_SEPARATOR . $templateFile;
+            str_replace('/', DS, $templateFile);
+            if (file_exists($this->appPath . DS . $templateFile)) {
+                require_once $this->appPath . DS . $templateFile;
             }
         }
     }
