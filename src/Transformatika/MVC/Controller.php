@@ -31,7 +31,7 @@ abstract class Controller
         } else {
             $dir = 'app';
         }
-        if (Config::getConfig('response') === 'json') {
+        if (Config::getConfig('response') === 'json' || isset($_GET['_api_'])) {
             /* Karena setiap request pasti ada parameter berikut jadi di set default dulu disini */
             $_GET['page'] = !isset($_GET['page']) ? 1 : $_GET['page'];
             $_GET['limit'] = !isset($_GET['limit']) ? Config::getConfig('displayLimit') : $_GET['limit'];
@@ -50,8 +50,8 @@ abstract class Controller
             $this->view->setViewPath(BASE_PATH . DS . $dir . DS . $explodeNamespace[0] . DS . $controllerName . DS . 'View');
         }
     }
-    
-    public function responseFilter($data, $table='')
+
+    public function responseFilter($data, $table = '')
     {
         /* suka lupa ini object nya propel */
         if (is_object($data)) {
@@ -62,7 +62,7 @@ abstract class Controller
         } elseif ($table === '' && !empty(static::DEFAULT_TABLE)) {
             $table = static::DEFAULT_TABLE;
         }
-        
+
         $excludeFields = Config::getConfig('excludeFields');
         if (!in_array($table, $excludeFields)) {
             return $data;
