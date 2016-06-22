@@ -10,6 +10,15 @@ abstract class Controller
 
     public $view;
 
+    protected $request;
+
+    public function __invoke($request)
+    {
+        $this->request = $request;
+        $action = $request->getAttribute('ACTION');
+        return $this->{$action}();
+    }
+
     public function __construct()
     {
         if (Config::getConfig('srcPath') === 'src') { // New MVC Version
