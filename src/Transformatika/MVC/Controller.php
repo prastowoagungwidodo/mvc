@@ -3,8 +3,6 @@ namespace Transformatika\MVC;
 
 use Transformatika\MVC\View;
 use Transformatika\Config\Config;
-use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response;
 
 abstract class Controller
 {
@@ -12,11 +10,7 @@ abstract class Controller
 
     public $view;
 
-    public $request;
-
-    public $response;
-
-    public function __construct(ServerRequestInterface $request)
+    public function __construct()
     {
         if (Config::getConfig('srcPath') === 'src') { // New MVC Version
             $dir = 'src';
@@ -41,8 +35,6 @@ abstract class Controller
             $this->view->setAppPath(BASE_PATH . DS . $dir);
             $this->view->setViewPath(BASE_PATH . DS . $dir . DS . $explodeNamespace[0] . DS . $controllerName . DS . 'View');
         }
-        $this->request = $request;
-        $this->response = new Response();
     }
 
     public function responseFilter($data, $table = '')
