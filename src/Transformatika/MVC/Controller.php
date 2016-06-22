@@ -12,11 +12,10 @@ abstract class Controller
 
     protected $request;
 
-    public function __invoke($request)
+    public function __invoke($method, $request)
     {
         $this->request = $request;
-        $action = $request->getAttribute('ACTION');
-        return $this->{$action}();
+        return $this->{$method}();
     }
 
     public function __construct()
