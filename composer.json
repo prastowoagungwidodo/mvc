@@ -17,6 +17,10 @@
 		"issues" : "https://github.com/transformatika/mvc/issues",
 		"email" : "support@transformatika.com"
 	},
+    "require": {
+        "zendframework/zend-diactoros": "^1.3",
+        "nikic/fast-route": "^1.0"
+    },
 	"autoload" : {
 		"psr-0" : {
 			"Transformatika\\MVC\\" : "src/"
