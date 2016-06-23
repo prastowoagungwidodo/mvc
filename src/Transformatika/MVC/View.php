@@ -33,7 +33,7 @@ class View
             $cacheDir = realpath($this->appPath . DS . '..') . DS . 'storage' . DS . 'cache' . DS . 'templates';
             $cacheFile = $cacheDir . DS . MD5($this->viewPath . str_replace('.' . $this->config['templateExtension'], '', $templateFile)) . '.php';
 
-            if (!file_exists($cacheFile) || ($this->config['cache'] == 'false' || $this->config['cache'] === false)) {
+            if (!file_exists($cacheFile) || ($this->config['cache'] === 'false' || $this->config['cache'] === false)) {
                 $templateTmp = file_get_contents($this->viewPath . DS . $templateFile);
                 preg_match_all("~\{\{\s*(.*?)\s*\}\}~", $templateTmp, $block);
                 foreach ($block[1] as $k => $v) {
