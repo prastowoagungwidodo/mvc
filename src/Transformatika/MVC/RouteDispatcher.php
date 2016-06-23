@@ -77,6 +77,9 @@ class RouteDispatcher
                     $md = new $this->middleware();
                     $md($this->request);
                 }
+                foreach ($routeInfo[2] as $k => $v) {
+                    $this->request = $this->request->withAttribute($k, $v);
+                }
                 $explodeController = explode('#', $routeInfo[1]);
                 $actionClass = $explodeController[0];
                 $controller = new $actionClass();
