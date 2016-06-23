@@ -31,6 +31,9 @@ class RouteDispatcher
             foreach ($this->routes as $k => $v) {
                 $method = explode('|', $v['method']);
                 $v['path'] = !isset($v['path']) ? $v['match'] : $v['path'];
+                if ($v['path'] !== '/') {
+                    $v['path'] = rtrim($v['path'], '/');
+                }
                 if (count($method) > 1) {
                     foreach ($method as $key => $m) {
                         $r->addRoute($m, $v['path'], $v['controller']);
