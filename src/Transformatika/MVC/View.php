@@ -31,7 +31,7 @@ class View
     {
         if (!empty($templateFile)) {
             $cacheDir = realpath($this->appPath . DS . '..') . DS . 'storage' . DS . 'cache' . DS . 'templates';
-            $cacheFile = $cacheDir . DS . MD5($this->currentController . str_replace('.' . $this->config['templateExtension'], '', $templateFile)) . '.php';
+            $cacheFile = $cacheDir . DS . MD5($this->viewPath . str_replace('.' . $this->config['templateExtension'], '', $templateFile)) . '.php';
 
             if (!file_exists($cacheFile) || ($this->config['cache'] == 'false' || $this->config['cache'] === false)) {
                 $templateTmp = file_get_contents($this->viewPath . DS . $templateFile);
