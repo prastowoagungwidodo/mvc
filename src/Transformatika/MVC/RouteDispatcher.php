@@ -56,10 +56,10 @@ class RouteDispatcher
     {
         $httpMethod = $this->request->getMethod();
         $uri = $this->request->getUri()->getPath();
-	if (substr($uri, -1) == '/') {
-	    $uri = substr($uri, 0, -1);
-	}
-	$routeInfo = $this->dispatcher->dispatch($httpMethod, $uri);
+        if ($uri !== '/' && substr($uri, -1) == '/') {
+            $uri = substr($uri, 0, -1);
+        }
+        $routeInfo = $this->dispatcher->dispatch($httpMethod, $uri);
 
         switch ($routeInfo[0]) {
             case \FastRoute\Dispatcher::NOT_FOUND:
