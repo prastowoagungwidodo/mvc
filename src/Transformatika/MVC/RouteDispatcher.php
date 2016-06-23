@@ -16,11 +16,14 @@ class RouteDispatcher
 
     protected $dispatcher;
 
-    public function __construct($routes)
+    protected $middleware;
+
+    public function __construct($routes, $middleware = null)
     {
         $this->routes = $routes;
         $this->request = ServerRequestFactory::fromGlobals();
         $dir = Config::getRootDir().DS.'storage'.DS.'cache'.DS;
+        $this->middleware = $middleware;
         $this->dispatcher = \FastRoute\cachedDispatcher(function (\FastRoute\RouteCollector $r) {
             // $r->addRoute('GET', '/user/{name}/{id:[0-9]+}', 'handler0');
             // $r->addRoute('GET', '/user/{id:[0-9]+}', 'handler1');
@@ -30,7 +33,7 @@ class RouteDispatcher
                 $v['path'] = !isset($v['path']) ? $v['match'] : $v['path'];
                 if (count($method) > 1) {
                     foreach ($method as $key => $m) {
-                        $r->addRoute($m, $v['path'],$v['controller']);
+                        $r->addRoute($m, $v['path'], $v['controller']);
                     }
                 } else {
                     $r->addRoute($v['method'], $v['path'], $v['controller']);
@@ -46,10 +49,8 @@ class RouteDispatcher
 
     public function dispatch()
     {
-        // $httpMethod = $this->request->getMethod();
-        // $uri = $this->request->getUri()->getPath();
-        $httpMethod = $_SERVER['REQUEST_METHOD'];
-        $uri = $_SERVER['REQUEST_URI'];
+        $httpMethod = $this->request->getMethod();
+        $uri = $this->request->getUri()->getPath();
         $routeInfo = $this->dispatcher->dispatch($httpMethod, $uri);
 
         switch ($routeInfo[0]) {
@@ -64,13 +65,24 @@ class RouteDispatcher
                 exit();
                 break;
             case \FastRoute\Dispatcher::FOUND:
+                if (null !== $this->middleware && class_exists($this->middleware)) {
+                    $md = new $this->middleware();
+                    $md($this->request);
+                }
                 $explodeController = explode('#', $routeInfo[1]);
                 $actionClass = $explodeController[0];
                 $controller = new $actionClass();
                 $data = $controller($explodeController[1], $this->request);
-                if (isset($data['headers'])
-                && isset($data['headers']['Content-Type'])
-                && $data['headers']['Content-Type'] === 'application/json') {
+
+                $defaultResponse = Config::getConfig('response');
+                $responseArray = [
+                    'json' => 'application/json',
+                    'html' => 'text/html'
+                ];
+                if (!isset($data['headers']) || !isset($data['headers']['Content-Type'])) {
+                    $data['headers']['Content-Typ'] = $responseArray[$defaultResponse];
+                }
+                if ($data['headers']['Content-Type'] === 'application/json') {
                     foreach ($data['headers'] as $hKey => $hVal) {
                         header($hKey.":".$hVal);
                     }
@@ -78,13 +90,13 @@ class RouteDispatcher
                 } else {
                     if (isset($data['redirect']) && $data['redirect'] === true) {
                         if (!isset($data['headers']['location'])) {
-                            throw new Exception("Invalid headers. Headers location must be set", 1);
+                            throw new \Exception("Invalid headers. Headers location must be set", 1);
                         } else {
                             header('location:'.$data['headers']['location']);
                         }
                     } else {
                         if (!isset($data['template'])) {
-                            throw new Exception("Template Configuration Not Found", 1);
+                            throw new \Exception("Template Configuration Not Found", 1);
                         }
                         foreach ($data['headers'] as $hKey => $hVal) {
                             header($hKey.":".$hVal);

@@ -36,13 +36,20 @@ abstract class Controller
             $_GET['id'] = !isset($_GET['id']) ? null : $_GET['id'];
         } else {
             $this->view = new View();
-            $className = get_class($this);
-            $explodeNamespace = explode('\\', $className);
-            $controllerName = $explodeNamespace[1];
-            $this->view->setCurrentController($controllerName);
             $this->view->setAppPath(BASE_PATH . DS . $dir);
-            $this->view->setViewPath(BASE_PATH . DS . $dir . DS . $explodeNamespace[0] . DS . $controllerName . DS . 'View');
+            $this->view->setViewPath($this->getViewDir());
         }
+    }
+
+    protected function getViewDir()
+    {
+        $controllerDir = dirname((new \ReflectionClass(static::class))->getFileName());
+        return realpath($controllerDir.DS.'..').DS.'View';
+    }
+
+    public function getViewPath()
+    {
+        return $this->view->getViewPath();
     }
 
     public function responseFilter($data, $table = '')
