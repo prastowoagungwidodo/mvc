@@ -31,9 +31,11 @@ class RouteDispatcher
             foreach ($this->routes as $k => $v) {
                 $method = explode('|', $v['method']);
                 $v['path'] = !isset($v['path']) ? $v['match'] : $v['path'];
-                if ($v['path'] !== '/') {
-                    $v['path'] = rtrim($v['path'], '/');
+
+                if (substr($v['path'], -1) == '/') {
+                    $v['path'] = substr($v['path'], 0, -1);
                 }
+
                 if (count($method) > 1) {
                     foreach ($method as $key => $m) {
                         $r->addRoute($m, $v['path'], $v['controller']);
@@ -83,7 +85,7 @@ class RouteDispatcher
                     'html' => 'text/html'
                 ];
                 if (!isset($data['headers']) || !isset($data['headers']['Content-Type'])) {
-                    $data['headers']['Content-Typ'] = $responseArray[$defaultResponse];
+                    $data['headers']['Content-Type'] = $responseArray[$defaultResponse];
                 }
                 if ($data['headers']['Content-Type'] === 'application/json') {
                     foreach ($data['headers'] as $hKey => $hVal) {
