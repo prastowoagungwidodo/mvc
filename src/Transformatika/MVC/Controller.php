@@ -25,20 +25,9 @@ abstract class Controller
         } else {
             $dir = 'app';
         }
-        if (Config::getConfig('response') === 'json' || isset($_GET['_api_'])) {
-            /* Karena setiap request pasti ada parameter berikut jadi di set default dulu disini */
-            $_GET['page'] = !isset($_GET['page']) ? 1 : $_GET['page'];
-            $_GET['limit'] = !isset($_GET['limit']) ? Config::getConfig('displayLimit') : $_GET['limit'];
-            $_GET['keyword'] = !isset($_GET['keyword']) ? null : $_GET['keyword'];
-            $_GET['filter'] = !isset($_GET['filter']) ? null : $_GET['filter'];
-            $_GET['order'] = !isset($_GET['order']) ? null : $_GET['order'];
-            $_GET['orderType'] = !isset($_GET['orderType']) ? 'ASC' : $_GET['orderType'];
-            $_GET['id'] = !isset($_GET['id']) ? null : $_GET['id'];
-        } else {
-            $this->view = new View();
-            $this->view->setAppPath(BASE_PATH . DS . $dir);
-            $this->view->setViewPath($this->getViewDir());
-        }
+        $this->view = new View();
+        $this->view->setAppPath(BASE_PATH . DS . $dir);
+        $this->view->setViewPath($this->getViewDir());
     }
 
     protected function getViewDir()
