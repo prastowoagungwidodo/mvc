@@ -32,7 +32,7 @@ class RouteDispatcher
                 $method = explode('|', $v['method']);
                 $v['path'] = !isset($v['path']) ? $v['match'] : $v['path'];
 
-                if (substr($v['path'], -1) == '/') {
+                if ($v['path'] !== '/' && substr($v['path'], -1) == '/') {
                     $v['path'] = substr($v['path'], 0, -1);
                 }
 
