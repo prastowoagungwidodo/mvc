@@ -57,6 +57,11 @@ class RouteDispatcher
         return $this;
     }
 
+    public function setMiddleWare($middleWare)
+    {
+        $this->middleWare = $middleWare;
+    }
+    
     public function setRedirectUrl($options)
     {
         $this->redirectUrl = array(
