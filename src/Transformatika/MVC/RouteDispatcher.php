@@ -16,19 +16,19 @@ class RouteDispatcher
 
     protected $dispatcher;
 
-    protected $middleware;
+    protected $middleWare;
 
     protected $redirectUrl = [
         404 => '',
         405 => ''
     ];
 
-    public function __construct($routes, $middleware = null)
+    public function __construct($routes, $middleWare = null)
     {
         $this->routes = $routes;
         $this->request = ServerRequestFactory::fromGlobals();
         $dir = Config::getRootDir().DS.'storage'.DS.'cache'.DS;
-        $this->middleware = $middleware;
+        $this->middleWare = $middleWare;
         $this->dispatcher = \FastRoute\cachedDispatcher(function (\FastRoute\RouteCollector $r) {
             // $r->addRoute('GET', '/user/{name}/{id:[0-9]+}', 'handler0');
             // $r->addRoute('GET', '/user/{id:[0-9]+}', 'handler1');
@@ -111,8 +111,8 @@ class RouteDispatcher
                 exit();
                 break;
             case \FastRoute\Dispatcher::FOUND:
-                if (null !== $this->middleware && class_exists($this->middleware)) {
-                    $md = new $this->middleware();
+                if (null !== $this->middleWare && class_exists($this->middleWare)) {
+                    $md = new $this->middleWare();
                     $md($this->request);
                 }
                 foreach ($routeInfo[2] as $k => $v) {
