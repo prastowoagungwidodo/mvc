@@ -60,8 +60,9 @@ class RouteDispatcher
     public function setMiddleWare($middleWare)
     {
         $this->middleWare = $middleWare;
+        return $this;
     }
-    
+
     public function setRedirectUrl($options)
     {
         $this->redirectUrl = array(
