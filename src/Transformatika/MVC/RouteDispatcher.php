@@ -18,6 +18,11 @@ class RouteDispatcher
 
     protected $middleware;
 
+    protected $redirectUrl = [
+        404 => '',
+        405 => ''
+    ];
+
     public function __construct($routes, $middleware = null)
     {
         $this->routes = $routes;
@@ -52,6 +57,14 @@ class RouteDispatcher
         return $this;
     }
 
+    public function setRedirectUrl($options)
+    {
+        $this->redirectUrl = array(
+            404 => !isset($options[404]) ? '' : $options[404],
+            405 => !isset($options[405]) ? '' : $options[405]
+        );
+    }
+
     public function dispatch()
     {
         $httpMethod = $this->request->getMethod();
@@ -63,13 +76,32 @@ class RouteDispatcher
 
         switch ($routeInfo[0]) {
             case \FastRoute\Dispatcher::NOT_FOUND:
-                header('HTTP/1.0 404 Not Found');
-                echo 'Page not found';
+                if (!empty($this->redirectUrl[404])) {
+                    header('location: ' . $this->redirectUrl[404]);
+                } else {
+                    header('HTTP/1.1 404 Not Found');
+                    header('Content-Type: text/plain');
+                    echo "HTTP/1.1 404 Not Found\n";
+                    echo "Content-Type: text/plain\n";
+                    echo "\n";
+                    echo "Page Not Found";
+                    echo "\n";
+                }
+
                 exit();
                 break;
             case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-                header('HTTP/1.0 405 Not Found');
-                echo 'Method not allowed';
+                if (!empty($this->redirectUrl[405])) {
+                    header('location: ' . $this->redirectUrl[405]);
+                } else {
+                    header('HTTP/1.1 405 Method Not Allowed');
+                    header('Content-Type: text/plain');
+                    echo "HTTP/1.1 405 Method Not Allowed\n";
+                    echo "Content-Type: text/plain\n";
+                    echo "\n";
+                    echo "Method Not Allowed";
+                    echo "\n";
+                }
                 exit();
                 break;
             case \FastRoute\Dispatcher::FOUND:
@@ -84,11 +116,11 @@ class RouteDispatcher
                 $actionClass = $explodeController[0];
                 $controller = new $actionClass();
                 $data = $controller($explodeController[1], $this->request);
-
                 $defaultResponse = Config::getConfig('response');
                 $responseArray = [
                     'json' => 'application/json',
-                    'html' => 'text/html'
+                    'html' => 'text/html',
+                    'text' => 'text/plain'
                 ];
                 if (!isset($data['headers']) || !isset($data['headers']['Content-Type'])) {
                     $data['headers']['Content-Type'] = $responseArray[$defaultResponse];
