@@ -3,6 +3,7 @@ namespace Transformatika\MVC;
 
 use Transformatika\MVC\View;
 use Transformatika\Config\Config;
+use Zend\Diactoros\ServerRequest;
 
 abstract class Controller
 {
@@ -28,6 +29,12 @@ abstract class Controller
         $this->view = new View();
         $this->view->setAppPath(BASE_PATH . DS . $dir);
         $this->view->setViewPath($this->getViewDir());
+    }
+
+    public function setServerRequest(ServerRequest $request)
+    {
+        $this->request = $request;
+        return $this;
     }
 
     protected function getViewDir()
