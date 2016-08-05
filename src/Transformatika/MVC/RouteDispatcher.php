@@ -29,30 +29,49 @@ class RouteDispatcher
         $this->request = ServerRequestFactory::fromGlobals();
         $dir = Config::getRootDir().DS.'storage'.DS.'cache'.DS;
         $this->middleWare = $middleWare;
-        $this->dispatcher = \FastRoute\cachedDispatcher(function (\FastRoute\RouteCollector $r) {
-            // $r->addRoute('GET', '/user/{name}/{id:[0-9]+}', 'handler0');
-            // $r->addRoute('GET', '/user/{id:[0-9]+}', 'handler1');
-            // $r->addRoute('GET', '/user/{name}', 'handler2');
-            foreach ($this->routes as $k => $v) {
-                $method = explode('|', $v['method']);
-                $v['path'] = !isset($v['path']) ? $v['match'] : $v['path'];
+        if (true === Config::getConfig('cache')) {
+            $this->dispatcher = \FastRoute\cachedDispatcher(function (\FastRoute\RouteCollector $r) {
+                foreach ($this->routes as $k => $v) {
+                    $method = explode('|', $v['method']);
+                    $v['path'] = !isset($v['path']) ? $v['match'] : $v['path'];
 
-                if ($v['path'] !== '/' && substr($v['path'], -1) == '/') {
-                    $v['path'] = substr($v['path'], 0, -1);
-                }
-
-                if (count($method) > 1) {
-                    foreach ($method as $key => $m) {
-                        $r->addRoute($m, $v['path'], $v['controller']);
+                    if ($v['path'] !== '/' && substr($v['path'], -1) == '/') {
+                        $v['path'] = substr($v['path'], 0, -1);
                     }
-                } else {
-                    $r->addRoute($v['method'], $v['path'], $v['controller']);
+
+                    if (count($method) > 1) {
+                        foreach ($method as $key => $m) {
+                            $r->addRoute($m, $v['path'], $v['controller']);
+                        }
+                    } else {
+                        $r->addRoute($v['method'], $v['path'], $v['controller']);
+                    }
                 }
-            }
-        }, [
-            'cacheFile' => $dir . 'route.cache', /* required */
-            'cacheDisabled' => false,     /* optional, enabled by default */
-        ]);
+            }, [
+                'cacheFile' => $dir . 'route.cache', /* required */
+                'cacheDisabled' => false,     /* optional, enabled by default */
+            ]);
+        } else {
+            $this->dispatcher = \FastRoute\simpleDispatcher(function (\FastRoute\RouteCollector $r) {
+                foreach ($this->routes as $k => $v) {
+                    $method = explode('|', $v['method']);
+                    $v['path'] = !isset($v['path']) ? $v['match'] : $v['path'];
+
+                    if ($v['path'] !== '/' && substr($v['path'], -1) == '/') {
+                        $v['path'] = substr($v['path'], 0, -1);
+                    }
+
+                    if (count($method) > 1) {
+                        foreach ($method as $key => $m) {
+                            $r->addRoute($m, $v['path'], $v['controller']);
+                        }
+                    } else {
+                        $r->addRoute($v['method'], $v['path'], $v['controller']);
+                    }
+                }
+            });
+        }
+
 
         return $this;
     }
@@ -74,11 +93,16 @@ class RouteDispatcher
     public function dispatch()
     {
         $httpMethod = $this->request->getMethod();
+        $baseUrl = Config::getConfig('basePath');
         $uri = $this->request->getUri()->getPath();
+        $uri = substr($uri, strlen($baseUrl));
+        $uri = empty($uri) ? '/' : $uri;
+
         if ($uri !== '/' && substr($uri, -1) == '/') {
             $uri = substr($uri, 0, -1);
         }
-        $routeInfo = $this->dispatcher->dispatch($httpMethod, $uri);
+
+        $routeInfo = $this->dispatcher->dispatch($httpMethod, substr($uri, strlen($baseUrl)));
 
         switch ($routeInfo[0]) {
             case \FastRoute\Dispatcher::NOT_FOUND:
