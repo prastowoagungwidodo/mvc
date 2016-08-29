@@ -102,7 +102,7 @@ class RouteDispatcher
             $uri = substr($uri, 0, -1);
         }
 
-        $routeInfo = $this->dispatcher->dispatch($httpMethod, $uri));
+        $routeInfo = $this->dispatcher->dispatch($httpMethod, $uri);
 
         switch ($routeInfo[0]) {
             case \FastRoute\Dispatcher::NOT_FOUND:
