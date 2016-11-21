@@ -88,13 +88,12 @@ class RouteDispatcher
                 }
                 $routes = $routerConfiguration;
             }
-            echo $cacheFile;
+
             if (true === Config::getConfig('cache')) {
                 if (!file_exists($cacheFile)) {
                     touch($cacheFile);
                 }
                 $str = "<?php\nreturn ".var_export($routes, true).";\n";
-                print_r($str);
                 file_put_contents($cacheFile, $str);
             }
         }
