@@ -1,10 +1,40 @@
 <?php
+/**
+ * Controller
+ *
+ * Controller untuk MVC yang sering digunakan Transformatika
+ * Ini hanya MVC Sederhana tidak ada fitur sekompleks Laravel dll
+ * Untuk menambahkan fitur lain silahkan tambahkan sendiri dependenciesnya
+ *
+ * LICENSE: MIT
+ *
+ * @category  MVC
+ * @package   Controller
+ * @author    Prastowo aGung Widodo <agung@transformatika.com>
+ * @copyright 2016 PT Daya Transformatika
+ * @license   MIT
+ * @version   GIT: $Id$
+ * @link      https://github.com/transformatika/mvc.git
+ */
 namespace Transformatika\MVC;
 
 use Transformatika\MVC\View;
 use Transformatika\Config\Config;
 use Zend\Diactoros\ServerRequest;
 
+/**
+ * Controller Class
+ *
+ * Untuk memenuhi PSR-7 maka digunakan zend diactoros response
+ *
+ * @category  MVC
+ * @package   Controller
+ * @author    Prastowo aGung Widodo <agung@transformatika.com>
+ * @copyright 2016 PT Daya Transformatika
+ * @license   MIT
+ * @version   GIT: $Id$
+ * @link      https://github.com/transformatika/mvc.git
+ */
 abstract class Controller
 {
     const DEFAULT_TABLE = '';
@@ -31,6 +61,12 @@ abstract class Controller
         $this->view->setViewPath($this->getViewDir());
     }
 
+    /**
+     * Set server request
+     * ini biasanya digunakan untuk unit testing
+     * 
+     * @param ServerRequest $request [description]
+     */
     public function setServerRequest(ServerRequest $request)
     {
         $this->request = $request;
@@ -48,6 +84,14 @@ abstract class Controller
         return $this->view->getViewPath();
     }
 
+    /**
+     * Too many bugs!!!
+     * may deleted soon!!
+     *
+     * @param  [type] $data  [description]
+     * @param  string $table [description]
+     * @return [type]        [description]
+     */
     public function responseFilter($data, $table = '')
     {
         /* suka lupa ini object nya propel */

@@ -1,9 +1,39 @@
 <?php
+/**
+ * RouteDispatcher
+ *
+ * Router untuk MVC yang sering digunakan Transformatika
+ * Ini hanya MVC Sederhana tidak ada fitur sekompleks Laravel dll
+ * Untuk menambahkan fitur lain silahkan tambahkan sendiri dependenciesnya
+ *
+ * LICENSE: MIT
+ *
+ * @category  MVC
+ * @package   RouteDispatcher
+ * @author    Prastowo aGung Widodo <agung@transformatika.com>
+ * @copyright 2016 PT Daya Transformatika
+ * @license   MIT
+ * @version   GIT: $Id$
+ * @link      https://github.com/transformatika/mvc.git
+ */
 namespace Transformatika\MVC;
 
 use Transformatika\Config\Config;
 use Zend\Diactoros\ServerRequestFactory;
 
+/**
+ * RouteDispatcher Class
+ *
+ * Handle route process
+ *
+ * @category  MVC
+ * @package   RouteDispatcher
+ * @author    Prastowo aGung Widodo <agung@transformatika.com>
+ * @copyright 2016 PT Daya Transformatika
+ * @license   MIT
+ * @version   GIT: $Id$
+ * @link      https://github.com/transformatika/mvc.git
+ */
 class RouteDispatcher
 {
     protected $controller;
@@ -23,8 +53,52 @@ class RouteDispatcher
         405 => ''
     ];
 
-    public function __construct($routes, $middleWare = null)
+    public function __construct($routes = null, $middleWare = null)
     {
+        $rootDir = Config::getRootDir();
+        /**
+         * Get Config from Module Config directory
+         * File name must be Router.php
+         */
+        if (empty($routes)) {
+            if (!empty(Config::getConfig('cachePath'))) {
+                $cacheDir = Config::getConfig('cachePath');
+            } else {
+                $cacheDir = Config::getRootDir().DIRECTORY_SEPARATOR.'storage'.DIRECTORY_SEPARATOR.'cache';
+            }
+            $cacheFile = $cacheDir.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'router.php';
+            if (true === Config::getConfig('cache') && file_exists($cacheFile)){
+                $routes = require_once($cacheFile);
+            } else {
+                $directory = new \RecursiveDirectoryIterator(
+                    $rootDir,
+                    \RecursiveDirectoryIterator::KEY_AS_FILENAME |
+                    \RecursiveDirectoryIterator::CURRENT_AS_FILEINFO
+                );
+                $files = new \RegexIterator(
+                    new \RecursiveIteratorIterator($directory),
+                    '#^Router\.php$#',
+                    \RegexIterator::MATCH,
+                    \RegexIterator::USE_KEY
+                );
+                $routerConfiguration = [];
+                foreach ($files as $filePath){
+                    $moduleRouterConfiguration = require_once($filePath->getPathname());
+                    $routerConfiguration = array_merge($routerConfiguration, $moduleRouterConfiguration);
+                }
+                $routes = $routerConfiguration;
+            }
+            echo $cacheFile;
+            if (true === Config::getConfig('cache')) {
+                if (!file_exists($cacheFile)) {
+                    touch($cacheFile);
+                }
+                $str = "<?php\nreturn ".var_export($routes, true).";\n";
+                print_r($str);
+                file_put_contents($cacheFile, $str);
+            }
+        }
+
         $this->routes = $routes;
         $this->request = ServerRequestFactory::fromGlobals();
         $dir = Config::getRootDir().DS.'storage'.DS.'cache'.DS;
@@ -76,12 +150,20 @@ class RouteDispatcher
         return $this;
     }
 
+    /**
+     * Simple middleware
+     * @param [type] $middleWare [description]
+     */
     public function setMiddleWare($middleWare)
     {
         $this->middleWare = $middleWare;
         return $this;
     }
 
+    /**
+     * Ganti error page
+     * @param [type] $options [description]
+     */
     public function setRedirectUrl($options)
     {
         $this->redirectUrl = array(

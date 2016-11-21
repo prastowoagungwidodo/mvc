@@ -1,8 +1,42 @@
 <?php
+/**
+ * View
+ *
+ * View untuk MVC yang sering digunakan Transformatika
+ * Ini hanya MVC Sederhana tidak ada fitur sekompleks Laravel dll
+ * Untuk menambahkan fitur lain silahkan tambahkan sendiri dependenciesnya
+ *
+ * LICENSE: MIT
+ *
+ * @category  MVC
+ * @package   View
+ * @author    Prastowo aGung Widodo <agung@transformatika.com>
+ * @copyright 2016 PT Daya Transformatika
+ * @license   MIT
+ * @version   GIT: $Id$
+ * @link      https://github.com/transformatika/mvc.git
+ */
 namespace Transformatika\MVC;
 
 use Transformatika\Config\Config;
 
+/**
+ * View Class
+ *
+ * Handle view
+ * Simple php templating, hanya menggunakan pure php
+ * atau file extensi lain dengan menambahkan kode {{php}} untuk menjalankan
+ * PHP Script. akhiri dengan {{/php}} untuk menutup kode php
+ * ini hanya me-replace {{php}} menjadi <?php dan {{/php}} menjadi ?>
+ *
+ * @category  MVC
+ * @package   RouteDispatcher
+ * @author    Prastowo aGung Widodo <agung@transformatika.com>
+ * @copyright 2016 PT Daya Transformatika
+ * @license   MIT
+ * @version   GIT: $Id$
+ * @link      https://github.com/transformatika/mvc.git
+ */
 class View
 {
 

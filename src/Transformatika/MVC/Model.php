@@ -1,4 +1,9 @@
 <?php
+/**
+ * Model
+ *
+ * This file is useless and should be deleted!
+ */
 namespace Transformatika\MVC;
 
 use Transformatika\Config\Config;
