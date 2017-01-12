@@ -70,8 +70,9 @@ class RouteDispatcher
             if (true === Config::getConfig('cache') && file_exists($cacheFile)){
                 $routes = require_once($cacheFile);
             } else {
+                $srcPath = Config::getConfig('srcPath');
                 $directory = new \RecursiveDirectoryIterator(
-                    $rootDir,
+                    $rootDir.DIRECTORY_SEPARATOR.$srcPath,
                     \RecursiveDirectoryIterator::KEY_AS_FILENAME |
                     \RecursiveDirectoryIterator::CURRENT_AS_FILEINFO
                 );
