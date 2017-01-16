@@ -64,11 +64,11 @@ class View
     public function render($templateFile = '', $data = array())
     {
         if (!empty($templateFile)) {
-            $cacheDir = realpath($this->appPath . DS . '..') . DS . 'storage' . DS . 'cache' . DS . 'templates';
-            $cacheFile = $cacheDir . DS . MD5($this->viewPath . str_replace('.' . $this->config['templateExtension'], '', $templateFile)) . '.php';
+            $cacheDir = realpath($this->appPath . DIRECTORY_SEPARATOR . '..') . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'templates';
+            $cacheFile = $cacheDir . DIRECTORY_SEPARATOR . MD5($this->viewPath . str_replace('.' . $this->config['templateExtension'], '', $templateFile)) . '.php';
 
             if (!file_exists($cacheFile) || ($this->config['cache'] === 'false' || $this->config['cache'] === false)) {
-                $templateTmp = file_get_contents($this->viewPath . DS . $templateFile);
+                $templateTmp = file_get_contents($this->viewPath . DIRECTORY_SEPARATOR . $templateFile);
                 preg_match_all("~\{\{\s*(.*?)\s*\}\}~", $templateTmp, $block);
                 foreach ($block[1] as $k => $v) {
                     if ($v === 'php') {
@@ -95,9 +95,9 @@ class View
      */
     public function includeBlock($blockName)
     {
-        $blockName = str_replace('/', DS, $blockName);
+        $blockName = str_replace('/', DIRECTORY_SEPARATOR, $blockName);
         $blockContent = '';
-        $blockFile = BASE_PATH . DS . 'storage' . DS . 'share' . DS . 'layout' . DS . $blockName . '.' . $this->config['templateExtension'];
+        $blockFile = BASE_PATH . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'share' . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . $blockName . '.' . $this->config['templateExtension'];
 
         if (file_exists($blockFile)) {
             $templateTmp = file_get_contents($blockFile);
@@ -138,9 +138,9 @@ class View
     public function includeFile($templateFile = '')
     {
         if (!empty($templateFile)) {
-            str_replace('/', DS, $templateFile);
-            if (file_exists($this->appPath . DS . $templateFile)) {
-                require_once $this->appPath . DS . $templateFile;
+            str_replace('/', DIRECTORY_SEPARATOR, $templateFile);
+            if (file_exists($this->appPath . DIRECTORY_SEPARATOR . $templateFile)) {
+                require_once $this->appPath . DIRECTORY_SEPARATOR . $templateFile;
             }
         }
     }

@@ -53,26 +53,36 @@ class RouteDispatcher
         405 => ''
     ];
 
+    protected $twig;
+
+    protected $rootDir;
+
+    protected $srcPath;
+
+    protected $cacheDir;
+
     public function __construct($routes = null, $middleWare = null)
     {
-        $rootDir = Config::getRootDir();
+        $this->rootDir = Config::getRootDir();
+        $this->srcPath = $this->rootDir . DIRECTORY_SEPARATOR . Config::getConfig('srcPath');
         /**
          * Get Config from Module Config directory
          * File name must be Router.php
          */
+
+        if (!empty(Config::getConfig('cachePath'))) {
+            $this->cacheDir = Config::getConfig('cachePath');
+        } else {
+            $this->cacheDir = $this->rootDir . DIRECTORY_SEPARATOR.'storage'.DIRECTORY_SEPARATOR.'cache';
+        }
+
         if (empty($routes)) {
-            if (!empty(Config::getConfig('cachePath'))) {
-                $cacheDir = Config::getConfig('cachePath');
-            } else {
-                $cacheDir = Config::getRootDir().DIRECTORY_SEPARATOR.'storage'.DIRECTORY_SEPARATOR.'cache';
-            }
-            $cacheFile = $cacheDir.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'router.php';
-            if (true === Config::getConfig('cache') && file_exists($cacheFile)){
+            $cacheFile = $this->cacheDir.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'router.php';
+            if (true === Config::getConfig('cache') && file_exists($cacheFile)) {
                 $routes = require_once($cacheFile);
             } else {
-                $srcPath = Config::getConfig('srcPath');
                 $directory = new \RecursiveDirectoryIterator(
-                    $rootDir.DIRECTORY_SEPARATOR.$srcPath,
+                    $this->srcPath,
                     \RecursiveDirectoryIterator::KEY_AS_FILENAME |
                     \RecursiveDirectoryIterator::CURRENT_AS_FILEINFO
                 );
@@ -83,7 +93,7 @@ class RouteDispatcher
                     \RegexIterator::USE_KEY
                 );
                 $routerConfiguration = [];
-                foreach ($files as $filePath){
+                foreach ($files as $filePath) {
                     $moduleRouterConfiguration = require_once($filePath->getPathname());
                     $routerConfiguration = array_merge($routerConfiguration, $moduleRouterConfiguration);
                 }
@@ -101,7 +111,7 @@ class RouteDispatcher
 
         $this->routes = $routes;
         $this->request = ServerRequestFactory::fromGlobals();
-        $dir = Config::getRootDir().DS.'storage'.DS.'cache'.DS;
+        $dir = $this->cacheDir.DIRECTORY_SEPARATOR;
         $this->middleWare = $middleWare;
         if (true === Config::getConfig('cache')) {
             $this->dispatcher = \FastRoute\cachedDispatcher(function (\FastRoute\RouteCollector $r) {
@@ -146,6 +156,14 @@ class RouteDispatcher
             });
         }
 
+        if (true === Config::getConfig('useTwig')) {
+            $loader = new \Twig_Loader_Filesystem($this->srcPath);
+            $params = array(
+                'cache' => $this->cacheDir.DIRECTORY_SEPARATOR.'twig',
+                'auto_reload' => !Config::getConfig('cache')
+            );
+            $this->twig = new \Twig_Environment($loader, $params);
+        }
 
         return $this;
     }
@@ -256,7 +274,13 @@ class RouteDispatcher
                         foreach ($data['headers'] as $hKey => $hVal) {
                             header($hKey.":".$hVal);
                         }
-                        $controller->display($data['template'], $data);
+                        if (true === Config::getConfig('useTwig')) {
+                            $viewPath = $controller->view->getViewPath();
+                            $viewPath = str_replace($this->srcPath, '', $viewPath);
+                            echo $this->twig->render($viewPath.'/'.$data['template'], $data);
+                        } else {
+                            $controller->display($data['template'], $data);
+                        }
                     }
                 }
                 break;
