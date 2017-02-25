@@ -64,10 +64,16 @@ abstract class Controller
     /**
      * Set server request
      * ini biasanya digunakan untuk unit testing
-     * 
+     *
      * @param ServerRequest $request [description]
      */
     public function setServerRequest(ServerRequest $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    public function setRequest(ServerRequest $request)
     {
         $this->request = $request;
         return $this;
